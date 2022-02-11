@@ -23,11 +23,11 @@ double optimize_T_wc(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::
     std::vector<Eigen::Matrix4d> Trans_wp;
     for (int i = 0; i < Trans_we.size(); i++)
     {
-        Eigen::Matrix4d wp = Trans_we[i] * Trans_ep[i];
+        Eigen::Matrix4d wp = Trans_we[i] * Trans_ep;
         Trans_wp.push_back(wp);
         /* code */
     }
-    
+
     Eigen::Vector3d t_wp;
     Eigen::Vector3d t_cp;
     // least squares solution parameters solve Trans_wc
@@ -43,26 +43,25 @@ double optimize_T_wc(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::
 
 double optimize_T_ep_linear(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, Eigen::Matrix4d &Trans_ep, Eigen::Matrix4d &Trans_wc)
 {
-
 }
 
-double pp_optimize(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, int max_iteration = 1000, double min_residual_change = 1e-6)
+double pp_optimize(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, Eigen::Matrix4d &Trans_ep, Eigen::Matrix4d &Trans_wc, int max_iteration = 1000, double min_residual_change = 1e-6)
 {
     double last_residual = 1e9;
     bool converged = false;
 
-    Eigen::Matrix4d Trans_ep = Eigen::Matrix4d::Identity();
-    Eigen::Matrix4d Trans_wc = Eigen::Matrix4d::Identity();
-    
+    Trans_ep = Eigen::Matrix4d::Identity();
+    Trans_wc = Eigen::Matrix4d::Identity();
+
     for (int i = 0; i < max_iteration; i++)
     {
         /* code */
-        double residual = optimize_T_wc(Trans_we,Trans_cp,Trans_ep,Trans_wc);
-        optimize_T_ep_linear(Trans_we,Trans_cp,Trans_ep,Trans_wc);
+        double residual = optimize_T_wc(Trans_we, Trans_cp, Trans_ep, Trans_wc);
+        optimize_T_ep_linear(Trans_we, Trans_cp, Trans_ep, Trans_wc);
 
-        printf("Residual: %f",residual);
+        printf("Residual: %f", residual);
 
-        if (abs(last_residual - residual)<min_residual_change)
+        if (abs(last_residual - residual) < min_residual_change)
         {
             converged = true;
             last_residual = residual;
@@ -71,6 +70,22 @@ double pp_optimize(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Ma
 
         last_residual = residual;
     }
+
+    if (converged)
+    {
+        printf("optimize finished. min_residual_change condition satisfied.");
+    }
+    else
+    {
+        printf("optimize finished. max_iteration condition satisfied.");
+    }
+
+    std::cout << "Trans_wc:" << std::endl;
+    std::cout << Trans_wc << std::endl;
+    std::cout << "Trans_ep:" << std::endl;
+    std::cout << Trans_wc << std::endl;
+
+    return last_residual;
 }
 
 int main()
@@ -717,8 +732,8 @@ int main()
         std::cout << abc << std::endl;
     }
     std::cout << "------------------------------------" << std::endl;
-
-    pp_optimize(trans_we, trans_cp);
+    Eigen::Matrix4d trans_wc, trans_ep;
+    //pp_optimize(trans_we, trans_cp, trans_ep, trans_wc);
 
     Matrix3f A;
     // A(0, 0) = 1, A(0, 1) = 0, A(0, 2) = 1;
