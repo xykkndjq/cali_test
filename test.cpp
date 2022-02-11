@@ -17,9 +17,60 @@ int QuaterniondToMatrix(Eigen::Quaterniond &qn, Eigen::Matrix3d &mx)
     return 0;
 }
 
-double optimize_T_wc(Eigen::Matrix4d,)
+double optimize_T_wc(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, Eigen::Matrix4d &Trans_ep, Eigen::Matrix4d &Trans_wc)
 {
+    double residual = 0;
+    std::vector<Eigen::Matrix4d> Trans_wp;
+    for (int i = 0; i < Trans_we.size(); i++)
+    {
+        Eigen::Matrix4d wp = Trans_we[i] * Trans_ep[i];
+        Trans_wp.push_back(wp);
+        /* code */
+    }
     
+    Eigen::Vector3d t_wp;
+    Eigen::Vector3d t_cp;
+    // least squares solution parameters solve Trans_wc
+
+    // Trans_wc =;
+    Eigen::Matrix3d R_wc;
+    Eigen::Vector3d t_wc;
+    // Eigen::Vector3d delta = R_wc.dot(t_cp) + t_wc - t_wp;
+    // residual = np.sum(np.linalg.norm(delta, axis=0)) / t_wp.shape[1]
+
+    return residual;
+}
+
+double optimize_T_ep_linear(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, Eigen::Matrix4d &Trans_ep, Eigen::Matrix4d &Trans_wc)
+{
+
+}
+
+double pp_optimize(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, int max_iteration = 1000, double min_residual_change = 1e-6)
+{
+    double last_residual = 1e9;
+    bool converged = false;
+
+    Eigen::Matrix4d Trans_ep = Eigen::Matrix4d::Identity();
+    Eigen::Matrix4d Trans_wc = Eigen::Matrix4d::Identity();
+    
+    for (int i = 0; i < max_iteration; i++)
+    {
+        /* code */
+        double residual = optimize_T_wc(Trans_we,Trans_cp,Trans_ep,Trans_wc);
+        optimize_T_ep_linear(Trans_we,Trans_cp,Trans_ep,Trans_wc);
+
+        printf("Residual: %f",residual);
+
+        if (abs(last_residual - residual)<min_residual_change)
+        {
+            converged = true;
+            last_residual = residual;
+            break;
+        }
+
+        last_residual = residual;
+    }
 }
 
 int main()
@@ -667,13 +718,7 @@ int main()
     }
     std::cout << "------------------------------------" << std::endl;
 
-    double last_residual = 1e9;
-    bool converged = false;
-    int max_iteration = 100;
-    for (int i = 0; i < max_iteration; i++)
-    {
-        /* code */
-    }
+    pp_optimize(trans_we, trans_cp);
 
     Matrix3f A;
     // A(0, 0) = 1, A(0, 1) = 0, A(0, 2) = 1;
