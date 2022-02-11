@@ -43,6 +43,13 @@ double optimize_T_wc(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::
 
 double optimize_T_ep_linear(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, Eigen::Matrix4d &Trans_ep, Eigen::Matrix4d &Trans_wc)
 {
+    std::vector<Eigen::Matrix4d> Trans_wp;
+    for (int i = 0; i < Trans_we.size(); i++)
+    {
+        Eigen::Matrix4d wp = Trans_we[i] * Trans_ep;
+        Trans_wp.push_back(wp);
+        /* code */
+    }
 }
 
 double pp_optimize(std::vector<Eigen::Matrix4d> &Trans_we, std::vector<Eigen::Matrix4d> &Trans_cp, Eigen::Matrix4d &Trans_ep, Eigen::Matrix4d &Trans_wc, int max_iteration = 1000, double min_residual_change = 1e-6)
